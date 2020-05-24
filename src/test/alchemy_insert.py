@@ -6,9 +6,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 import test
-import sys
-sys.path.append('../common')
-import db_utils
+# import sys
+# sys.path.append('../common')
+import src.common.db_utils as db_utils
 
 
 engine = create_engine(

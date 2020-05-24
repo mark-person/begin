@@ -17,6 +17,7 @@ Base = declarative_base()
 # /** 如果是invisible，这样优化器就会忽略这个索引，但是索引依然存在于引擎内部 */
 # ALTER TABLE test ADD INDEX idx_test_name (test_name ASC) VISIBLE;
 
+
 class Test(Base):
     __tablename__ = 'test'
     test_id = Column(Integer, primary_key=True)
@@ -25,3 +26,4 @@ class Test(Base):
     test_value = Column(DECIMAL)
     test_type = Column(Integer)
     created = Column(Date)
+

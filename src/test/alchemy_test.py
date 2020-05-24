@@ -5,6 +5,29 @@ from sqlalchemy import Column, Integer, String, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, state
 
+from src.test.test import Test
+import json
+
+from datetime import datetime
+
+from sqlalchemy.ext.declarative import DeclarativeMeta
+
+
+class AlchemyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj.__class__, DeclarativeMeta):
+            fields = {}
+            for field in [x for x in dir(obj) if not x.startswith('_') and x != 'metadata']:
+                data = obj.__getattribute__(field)
+                try:
+                    if isinstance(data, datetime):
+                        data=data.strftime('%Y-%m-%d %H:%M:%S')
+                    json.dumps(data)
+                    fields[field] = data
+                except TypeError:
+                    fields[field] = None
+
+
 engine = create_engine(
     "mysql+mysqlconnector://root:@Dengppx123456@localhost:3306/scan?charset=utf8mb4",
     echo=True,
@@ -13,43 +36,19 @@ engine = create_engine(
 Base = declarative_base()
 
 
-
-class Test(Base):
-    __tablename__ = 'test'
-    test_id = Column(Integer, primary_key=True)
-    test_name = Column(String)
-    test_value = Column(String)
-    test_value2 = Column(String)
-
 Session = sessionmaker(bind=engine)
 session = Session()
 
-
-r = session.query(Test, Test.test_value.label("test_value"),
-        Test.test_value2.label("test_value2")) .from_statement(
-    text("SELECT test.*, 'abcefg' test_value, 'abcef2g' test_value2 FROM test where test_id=:id")).\
-    params(id=1).all()
-
-
-session.execute("insert into test(test_name) values(:test_name)", {"test_name":"sxs's"})
-
-session.commit()
-
-
-#
-# t = Test(test_id=None, test_name="abc")
-# print("------------")
-# print(t.__dict__)
-# for i in t.__dict__:
-#     if type(getattr(t, i)) is state.InstanceState:
-#         continue
-#     print(getattr(Test, i).primary_key)
-# print("============")
-
-
-
+#  Test.test_value.label("test_value") session.commit()用
+r = session.query(Test).from_statement(
+    text("SELECT test.* FROM test where test_id=:id")).\
+    params(id=29).all()
 # t = Test(test_id=None, test_name="abc")
 # print(t)
+print(len(r))
+print(type(r))
 
-
-print(r[0].test_value)
+Hosts = []
+for rr in r:
+    Hosts.append(json.dumps(rr, cls=AlchemyEncoder))
+print(json.dumps(Hosts))
