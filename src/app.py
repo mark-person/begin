@@ -18,10 +18,12 @@ for dir_path, dir_names, filenames in os.walk(os.getcwd() + "/modules/"):
 for c in controller:
     url_first = c.split(".")[-1].replace("_controller", "")
     modules = importlib.import_module(c)
+    # 用modules.__dict__
     for i in dir(modules):
         if i.startswith("__") or i == "Resource":
             continue
         r = eval("modules." + i)
+        # 改成is flask.views.MethodViewType
         if str(type(r)) == "<class 'flask.views.MethodViewType'>":
             api.add_resource(r, "/" + url_first + "/" + i)
             print("url:/" + url_first + "/" + i)
